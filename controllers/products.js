@@ -5,13 +5,10 @@ const { StatusCodes } = require('http-status-codes')
 
 const addProducts = async (req,res) => {
   try {
-    const productsData = JSON.stringify(req.body.productdetails);
+    const productsData = JSON.parse(req.body.productdetails);
     const file = req.file;
-
-   const sqlCommand = `INSERT INTO product_sales 
-   (sale_date, state_location, city_location, product_name, source_price,
-    gross_weight, net_weight, bags
-    ) VALUES ('${productsData}')`;
+    productsData.file_path = file.path;
+    const sqlCommand = `INSERT INTO product_sales SET ?`;
 
    dbConnection.query(sqlCommand, productsData, (err, result) =>  {
     if (err) {
@@ -30,9 +27,8 @@ const addProducts = async (req,res) => {
 
 const dispatchproducts = async (req,res) => {
   try {
-    const dispatchProducts = JSON.stringify(req.body);
-    const sqlCommand = `INSERT INTO dispatch_products (date, source_location, 
-      dispatch_location, vehicle_no, driver_name, driver_mobile, type_of_vehicle) VALUES ('${dispatchProducts}')`;
+    const dispatchProducts = req.body;
+    const sqlCommand = `INSERT INTO dispatch_products SET ?`;
 
       dbConnection.query(sqlCommand, dispatchProducts, (err, result) =>  {
           if (err) {
@@ -44,6 +40,7 @@ const dispatchproducts = async (req,res) => {
           res.status(StatusCodes.OK).json({ message: 'Data saved successfully'});
    });
   } catch (error) {
+    console.log(error);
       throw new CustomAPIError(error);
   }
 }
